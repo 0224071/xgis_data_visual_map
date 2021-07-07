@@ -1,11 +1,21 @@
 <template>
-  <div class="d-flex">
+  <div class="wrapper">
     <div class="setting">
-      <label>上傳EXCEL<input
+      <div class="custom-file">
+        <input
           type="file"
+          class="custom-file-input"
+          id="customFile"
           @change="handleExcelFileChange"
           accept=".xlsx,.xls"
-        ></label>
+          lang="tw"
+        >
+        <label
+          class="custom-file-label"
+          for="customFile"
+        >上傳 Excel</label>
+      </div>
+
     </div>
     <div class="grid">
       <div class="table-responsive ">
@@ -33,6 +43,7 @@
                   class="form-control form-control-sm"
                   v-model="data[col]"
                   v-show="isSelected(index,col)"
+                  @keyup.enter="handleInputKeyupEnter"
                 >
                 <span v-show="!isSelected(index,col)">{{data[col]}}</span>
               </td>
@@ -94,7 +105,7 @@ export default {
           setDatalist(data);
 
           setIsLoading(false);
-          console.log(ws, data, make_cols(ws["!ref"]));
+        
         };
         if (rABS) reader.readAsBinaryString(files[0]);
         else reader.readAsArrayBuffer(files[0]);
@@ -107,6 +118,10 @@ export default {
       columns: computed(() => store.getters["chart/columns"]),
       selected,
       isSelected: (row, col) => selected[0] === row && selected[1] === col,
+      handleInputKeyupEnter() {
+        selected[0] = -1;
+        selected[1] = "";
+      },
       tableDbClick,
     };
   },
@@ -114,8 +129,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.wrapper{
+  display: flex;
+  
+}
 .setting {
   width: 320px;
+  padding-right: 10px;
+
 }
 .grid {
   flex: 1 1 auto;

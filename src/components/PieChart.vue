@@ -25,7 +25,7 @@ export default {
     metric: {},
   },
   setup(props) {
-    const { datalist, metricName, metric,titleText } = toRefs(props);
+    const { datalist, metricName, metric, titleText } = toRefs(props);
 
     const option = reactive({
       title: {
@@ -69,16 +69,24 @@ export default {
         let seriesData = [];
 
         datalist.value.forEach((data) => {
-          if (!data[metric.value[0]]) {
+          let name = data[metricName.value[0]];
+          let value = data[metric.value[0]];
+          if (!value) {
             return;
           }
-          legendData.push(data[metricName.value[0]]);
-          seriesData.push({
-            value: data[metric.value[0]],
-            name: data[metricName.value[0]],
-          });
+          console.log(legendData, name);
+          if (!legendData.includes(name)) {
+            legendData.push(name);
+            seriesData.push({
+              value,
+              name,
+            });
+          } else {
+            seriesData[seriesData.findIndex((item) => item.name === name)]
+              .value + value;
+          }
         });
-
+        console.log(seriesData);
         option.title.text = titleText;
         option.legend.data = legendData;
         option.series[0].name = metric.value[0];

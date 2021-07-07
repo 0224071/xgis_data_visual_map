@@ -1,12 +1,14 @@
 <template>
-  <ExcelData ref="excel"></ExcelData>
-  <PieChart
-    :datalist="datalist"
-    :title-text="chartName"
-    :metric-name="['區域']"
-    :metric="['新增確診人數']"
-  ></PieChart>
-  <Loading :show="isLoading"></Loading>
+  <div class="wrapper">
+    <ExcelData ref="excel"></ExcelData>
+    <PieChart
+      :datalist="datalist"
+      :title-text="chartName"
+      :metric-name="['區域']"
+      :metric="['新增確診人數']"
+    ></PieChart>
+    <Loading :show="isLoading"></Loading>
+  </div>
 </template>
 
 
@@ -32,5 +34,10 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss" scoped>
+.wrapper {
+  padding-top: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
 </style>

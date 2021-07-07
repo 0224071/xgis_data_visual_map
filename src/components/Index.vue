@@ -3,16 +3,12 @@
     <h1>{{ msg }}</h1>
     <p>
       基於 vue 和 echart 建立的數據可視化地圖
-
     </p>
-
     <ul>
       <li>
         <router-link to="/example">Start</router-link>
       </li>
-
     </ul>
-
   </div>
 </template>
 

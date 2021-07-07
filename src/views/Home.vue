@@ -1,4 +1,7 @@
 <style lang="scss" scoped>
+.home {
+  text-align: center;
+}
 .iconList {
   display: flex;
   list-style: none;
