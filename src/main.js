@@ -14,6 +14,7 @@ import { use } from "echarts/core";
 // import ECharts modules manually to reduce bundle size
 import { CanvasRenderer } from "echarts/renderers";
 import { PieChart, BarChart } from "echarts/charts";
+
 import {
   GridComponent,
   TooltipComponent,
@@ -33,5 +34,6 @@ use([
 createApp(App)
   .use(store)
   .use(router)
+
   .component("v-chart", ECharts)
   .mount("#app");

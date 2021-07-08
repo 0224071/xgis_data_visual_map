@@ -1,6 +1,7 @@
 <style lang="scss" scoped>
 .home {
   text-align: center;
+  width: 100%;
 }
 .iconList {
   display: flex;

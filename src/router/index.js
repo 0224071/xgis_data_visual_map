@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Home from "../views/Home.vue";
+import Home from "@/views/Home.vue";
+import ExcelData from "@/views/Example/ExcelData.vue";
 
 const routes = [
   {
@@ -8,9 +9,16 @@ const routes = [
   },
   {
     path: "/example",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
+    children: [
+      {
+        path: "",
+        component: ExcelData,
+      },
+      {
+        path: "Chart",
+        component: () => import("@/views/Example/ExcelChart.vue"),
+      },
+    ],
     component: () => import("@/views/Example.vue"),
   },
 ];

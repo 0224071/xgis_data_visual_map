@@ -1,7 +1,7 @@
 <template>
   <v-chart
     v-if="chartShow"
-    class="pie-chart"
+    class="bar-chart"
     :option="optionComputed"
   />
   <div v-else>
@@ -12,7 +12,7 @@
 <script>
 import { ref, reactive, computed, toRefs } from "vue";
 export default {
-  name: "PieChart",
+  name: "BarChart",
   props: {
     datalist: {
       type: Array,
@@ -20,7 +20,7 @@ export default {
     },
     titleText: {
       type: String,
-      default: "圖餅圖",
+      default: "直方圖",
     },
     cols: {},
     rows: {},
@@ -42,60 +42,44 @@ export default {
       },
       tooltip: {
         trigger: "item",
-        formatter: "{a} <br/>{b} : {c} ({d}%)",
+        formatter: "{a} <br/>{b} : {c} ",
       },
-      legend: {
-        orient: "vertical",
-        left: "left",
-        data: [],
+
+      xAxis: {
+        type: "category",
+        data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      },
+      yAxis: {
+        type: "value",
       },
       series: [
         {
-          name: "",
-          type: "pie",
-          radius: "55%",
-          center: ["50%", "60%"],
-          data: [],
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: "rgba(0, 0, 0, 0.5)",
-            },
-          },
+          data: [120, 200, 150, 80, 70, 110, 130],
+          type: "bar",
         },
       ],
     });
     const optionComputed = computed(() => {
       if (datalist.value) {
-        let legendData = [];
+        let xAxisData = [];
         let seriesData = [];
 
         datalist.value.forEach((data) => {
           let name = data[metricNames.value[0]];
           let value = data[metrics.value[0]];
-          if (+value === 0) {
-            return;
-          }
-          console.log(legendData, name, legendData.includes(name));
 
-          if (legendData.includes(name)) {
-            let d =
-              seriesData[seriesData.findIndex((item) => item.name === name)];
-
-            d.value = +d.value + value;
+          let index = xAxisData.findIndex((item) => item === name);
+          if (index >= 0) {
+            seriesData[index] = +seriesData[index] + value;
           } else {
-            legendData.push(name);
-            seriesData.push({
-              value,
-              name,
-            });
+            xAxisData.push(name);
+            seriesData.push(0);
           }
           console.log(seriesData);
         });
 
         option.title.text = titleText;
-        option.legend.data = legendData;
+        option.xAxis.data = xAxisData;
         option.series[0].name = metrics.value[0];
         option.series[0].data = seriesData;
       }
@@ -104,18 +88,14 @@ export default {
 
     return {
       optionComputed,
-      chartShow: computed(
-        () =>
-          datalist.value.length > 0 
- 
-      ),
+      chartShow: computed(() => datalist.value.length > 0),
     };
   },
 };
 </script>
 
 <style scoped>
-.pie-chart {
+.bar-chart {
   height: 100%;
   width: 100%;
 }
