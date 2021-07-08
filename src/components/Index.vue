@@ -2,11 +2,15 @@
   <div class="hello">
     <h1>{{ msg }}</h1>
     <p>
-      基於 vue 和 echart 建立的數據可視化地圖
+      基於 vue 和 echart 建立的數據可視化地圖 <a
+        href="@/assets/covidtable_taiwan_cdc6.xlsx"
+        download
+      >下載範本</a>
     </p>
     <ul>
       <li>
         <router-link to="/example">Start</router-link>
+
       </li>
     </ul>
   </div>
