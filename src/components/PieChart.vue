@@ -1,16 +1,17 @@
 <template>
-  <v-chart
-    v-if="chartShow"
-    class="pie-chart"
-    :option="optionComputed"
-  />
-  <div v-else>
-    圖表所需元素不足
+  <div>
+    <v-chart
+      :option="optionComputed"
+      class="w-100 h-100"
+      autoresize
+    />
   </div>
+
 </template>
 
 <script>
-import { ref, reactive, computed, toRefs } from "vue";
+import { toRefs, computed, reactive } from "vue";
+
 export default {
   name: "PieChart",
   props: {
@@ -22,8 +23,6 @@ export default {
       type: String,
       default: "圖餅圖",
     },
-    cols: {},
-    rows: {},
     metricNames: {
       type: Array,
       default: [],
@@ -35,7 +34,6 @@ export default {
   },
   setup(props) {
     const { datalist, metricNames, metrics, titleText } = toRefs(props);
-
     const option = reactive({
       title: {
         left: "center",
@@ -45,8 +43,9 @@ export default {
         formatter: "{a} <br/>{b} : {c} ({d}%)",
       },
       legend: {
-        orient: "vertical",
-        left: "left",
+      
+        bottom: 10,
+        type: "scroll",
         data: [],
       },
       series: [
@@ -54,7 +53,7 @@ export default {
           name: "",
           type: "pie",
           radius: "55%",
-          center: ["50%", "60%"],
+          center: ["50%", "50%"],
           data: [],
           emphasis: {
             itemStyle: {
@@ -67,56 +66,34 @@ export default {
       ],
     });
     const optionComputed = computed(() => {
-      if (datalist.value) {
-        let legendData = [];
-        let seriesData = [];
+      let result = datalist.value.reduce((acc, data) => {
+        let dataName =
+          (metricNames.value[0] && data[metricNames.value[0].datafield]) || "";
+        let dataValue =
+          metrics.value[0] && data[metrics.value[0].datafield] | "";
+        if (+dataValue === 0) return acc;
 
-        datalist.value.forEach((data) => {
-          let name = data[metricNames.value[0]];
-          let value = data[metrics.value[0]];
-          if (+value === 0) {
-            return;
-          }
-          console.log(legendData, name, legendData.includes(name));
-
-          if (legendData.includes(name)) {
-            let d =
-              seriesData[seriesData.findIndex((item) => item.name === name)];
-
-            d.value = +d.value + value;
-          } else {
-            legendData.push(name);
-            seriesData.push({
-              value,
-              name,
-            });
-          }
-          console.log(seriesData);
-        });
-
-        option.title.text = titleText;
-        option.legend.data = legendData;
-        option.series[0].name = metrics.value[0];
-        option.series[0].data = seriesData;
-      }
+        acc[dataName] = acc[dataName]
+          ? +acc[dataName] + dataValue
+          : (acc[dataName] = dataValue);
+        return acc;
+      }, {});
+      let optionLegend = Object.keys(result);
+      option.legend.data = optionLegend;
+      option.series[0].data = optionLegend.map((legend) => {
+        return { value: result[legend], name: legend };
+      });
+      option.title.text = titleText.value;
+      option.series[0].name = metrics.value[0]&&metrics.value[0].text||"";
       return option;
     });
 
     return {
       optionComputed,
-      chartShow: computed(
-        () =>
-          datalist.value.length > 0 
- 
-      ),
     };
   },
 };
 </script>
 
 <style scoped>
-.pie-chart {
-  height: 100%;
-  width: 100%;
-}
 </style>

@@ -33,28 +33,28 @@ table {
           <tr>
             <th
               v-for="col in columns"
-              :key="col"
-            >{{col}}</th>
+              :key="col.datafield"
+            >{{col.datafield}}</th>
           </tr>
         </thead>
         <tbody>
           <tr
             v-for="(data,index) in datalist"
-            :key="data[columns[0]]"
+            :key="data[columns[0].datafield]"
           >
             <td
               v-for="col in columns"
-              :key="col"
-              @dblclick="tableDbClick(index,col)"
+              :key="col.datafield"
+              @dblclick="tableDbClick(index,col.datafield)"
             >
               <input
                 type="text"
                 class="form-control form-control-sm"
-                v-model="data[col]"
-                v-show="isSelected(index,col)"
+                v-model="data[col.datafield]"
+                v-show="isSelected(index,col.datafield)"
                 @keyup.enter="handleInputKeyupEnter"
               >
-              <span v-show="!isSelected(index,col)">{{data[col]}}</span>
+              <span v-show="!isSelected(index,col.datafield)">{{data[col.datafield]}}</span>
             </td>
           </tr>
         </tbody>
@@ -85,7 +85,7 @@ export default {
       selected[1] = col;
     };
 
-    const setIsLoading = (value) => store.dispatch("setIsLoading", value);
+   
 
     return {
       datalist: computed(() => store.getters["chart/datalist"]),

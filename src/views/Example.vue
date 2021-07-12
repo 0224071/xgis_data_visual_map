@@ -48,7 +48,7 @@ export default {
 
 <style lang="scss" scoped>
 .aside {
-  width: 404px;
+  width: 300px;
   padding-left: 8px;
   padding-right: 8px;
   padding-top: 5px;

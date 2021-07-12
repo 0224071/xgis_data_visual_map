@@ -1,5 +1,5 @@
 <style lang="scss" scoped>
-.chart {
+.work-area {
   height: 100%;
   overflow-y: auto;
   display: flex;
@@ -7,6 +7,13 @@
   &__wrapper {
     flex: 1 1 auto;
     height: 0;
+    display: flex;
+    &__chart {
+      flex: 1 1 auto;
+    }
+    &__map {
+      width: 70%;
+    }
   }
 }
 .prepend {
@@ -15,7 +22,7 @@
     width: 100%;
   }
 }
-.metric-list {
+.item-list {
   list-style-type: none;
   display: flex;
   margin: 0;
@@ -51,7 +58,7 @@
 
 <template>
 
-  <div class="chart">
+  <div class="work-area">
     <div class="form-group">
       <div class="input-group">
         <div class="input-group-prepend prepend">
@@ -60,16 +67,16 @@
         <div class="form-control">
           <draggable
             tag="ul"
-            class="metric-list"
-            :list="metricNames"
+            class="item-list"
+            v-model="metricNamesCols"
             group="column"
           >
             <template #item="{ element,index }">
-              <li> <span class="item">{{element}}
+              <li> <span class="item">{{element.text}}
                   <span
                     aria-hidden="true"
                     class="close-btn"
-                    @click="metricNames.splice(index,1)"
+                    @click="handleRemoveMetricNamesCols(index)"
                   >&times;</span>
                 </span></li>
             </template>
@@ -85,16 +92,41 @@
         <div class="form-control">
           <draggable
             tag="ul"
-            class="metric-list"
-            :list="metrics"
+            class="item-list"
+            v-model="metricsCols"
             group="column"
           >
             <template #item="{ element,index }">
-              <li> <span class="item">{{element}}
+              <li> <span class="item">{{element.text}}
                   <span
                     aria-hidden="true"
                     class="close-btn"
-                    @click="metrics.splice(index,1)"
+                    @click="handleRemoveMetricsCols(index)"
+                  >&times;</span>
+                </span></li>
+            </template>
+          </draggable>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="input-group">
+        <div class="input-group-prepend prepend">
+          <div class="input-group-text bg-light">地址</div>
+        </div>
+        <div class="form-control">
+          <draggable
+            tag="ul"
+            class="item-list"
+            v-model="addressCols"
+            group="column"
+          >
+            <template #item="{ element,index }">
+              <li> <span class="item">{{element.text}}
+                  <span
+                    aria-hidden="true"
+                    class="close-btn"
+                    @click="handleRemoveAddressCols(index)"
                   >&times;</span>
                 </span></li>
             </template>
@@ -114,65 +146,113 @@
         >{{label}}</option>
       </select>
     </div>
+    <div class="work-area__wrapper">
+      <component
+        class="work-area__wrapper__chart"
+        :is="chartSelected"
+        :datalist="datalist"
+        :title-text="chartName"
+        :metric-names="metricNamesCols"
+        :metrics="metricsCols"
+        v-if="metricNamesCols.length!==0||metricsCols.length!==0"
+      >
 
-    <component
-      class="chart__wrapper"
-      :is="chartSelected"
-      :datalist="datalist"
-      :title-text="chartName"
-      :metric-names="metricNames"
-      :metrics="metrics"
-      v-if="metricNames.length!==0||metrics.length!==0"
-    >
+      </component>
+      <div
+        class="work-area__wrapper__chart"
+        v-else
+      >
+        <div
+          class="alert alert-danger "
+          role="alert"
+        >請至少新增一項度量名稱或度量值</div>
+      </div>
+      <Map
+        :datalist="datalistWithXY"
+        :show-attrs="showAttrs"
+        class="work-area__wrapper__map"
+      ></Map>
 
-    </component>
-
-    <div
-      class="alert alert-danger"
-      role="alert"
-      v-else
-    >請至少新增一項度量名稱或度量值</div>
+    </div>
   </div>
 
 </template>
 
 <script>
-import { computed, reactive, ref } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { useStore } from "vuex";
 import PieChart from "@/components/PieChart.vue";
 import BarChart from "@/components/BarChart.vue";
+import Map from "@/components/Map.vue";
 import draggable from "vuedraggable";
 export default {
   components: {
     PieChart,
     BarChart,
     draggable,
+    Map,
   },
   setup() {
     const store = useStore();
+    const metricNamesCols = computed({
+      get() {
+        return store.getters["chart/metricNamesCols"];
+      },
+      set(value) {
+        store.dispatch("chart/setMetricNamesCols", value);
+      },
+    });
+    const metricsCols = computed({
+      get() {
+        return store.getters["chart/metricsCols"];
+      },
+      set(value) {
+        store.dispatch("chart/setMetricsCols", value);
+      },
+    });
+    const addressCols = computed({
+      get() {
+        return store.getters["chart/addressCols"];
+      },
+      set(value) {
+        store.dispatch("chart/setAddressCols", value);
+      },
+    });
+
+    const handleRemoveMetricNamesCols = (index) => {
+      let arr = JSON.parse(JSON.stringify(metricNamesCols.value));
+      arr.splice(index, 1);
+      metricNamesCols.value = arr;
+    };
+    const handleRemoveMetricsCols = (index) => {
+      let arr = JSON.parse(JSON.stringify(metricsCols.value));
+      arr.splice(index, 1);
+      metricsCols.value = arr;
+    };
+    const handleRemoveAddressCols = (index) => {
+      let arr = JSON.parse(JSON.stringify(addressCols.value));
+      arr.splice(index, 1);
+      addressCols.value = arr;
+    };
 
     return {
       datalist: computed(() => store.getters["chart/datalist"]),
+      datalistWithXY: computed(() => store.getters["chart/datalistWithXY"]),
       chartName: computed(() => store.getters["chart/chartName"]),
-      metricNames: computed({
-        get() {
-          return store.getters["chart/metricNames"];
-        },
-        set(value) {
-          console.log(value);
-          store.dispatch("chart/setMetricNames", value);
-        },
-      }),
-      metrics: computed({
-        get() {
-          return store.getters["chart/metrics"];
-        },
-        set(value) {
-          store.dispatch("chart/setMetrics", value);
-        },
-      }),
       chartOptions: reactive({ 圓餅圖: "PieChart", 直方圖: "BarChart" }),
       chartSelected: ref("PieChart"),
+
+      handleRemoveMetricNamesCols,
+      handleRemoveMetricsCols,
+      handleRemoveAddressCols,
+      metricNamesCols,
+      metricsCols,
+      addressCols,
+      showAttrs: computed(() => {
+        return [...metricNamesCols.value, ...metricsCols.value].map(
+          (col) => col.datafield
+        );
+      }),
     };
   },
 };

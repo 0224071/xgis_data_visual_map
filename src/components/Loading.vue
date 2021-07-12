@@ -40,6 +40,7 @@ $size: 150px;
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 3;
   top: 0;
   left: 0;
   background-color: rgba(125, 125, 125, 0.4);

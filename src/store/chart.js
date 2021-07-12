@@ -1,9 +1,35 @@
+const getGeoJson = async (address) => {
+  if (!address) return false;
+  let osmResult = await fetch(
+    `https://nominatim.openstreetmap.org/search?q=${address}&format=json`
+  )
+    .then((res) => res.json())
+    .catch((err) => false);
+  let osm_id = osmResult && osmResult.length > 0 && osmResult[0].osm_id;
+  if (!osm_id) return false;
+
+  return await fetch(`/geojson?id=${osm_id}&params=0`)
+    .then((res) => res.json())
+    .catch((err) => false);
+};
+
+const getAddressResult = async (address) => {
+  if (!address) return false;
+  return await fetch(`/SearchAddress?Addr=${address}`)
+    .then((res) => res.json())
+    .catch((err) => false);
+};
+
 const state = {
   datalist: [],
   columns: [],
   chartName: "請上傳資料",
-  metricNames: [],
-  metrics: [],
+  metricNamesCols: [],
+  metricsCols: [],
+  addressCols: [],
+  datalistWithXY: [],
+  columnsWithXY: [],
+  GeoJson: null,
 };
 const mutations = {
   setDatalist(state, { value }) {
@@ -15,11 +41,23 @@ const mutations = {
   setChartName(state, { value }) {
     state.chartName = value;
   },
-  setMetricNames(state, { value }) {
-    state.metricNames = value;
+  setMetricNamesCols(state, { value }) {
+    state.metricNamesCols = value;
   },
-  setMetrics(state, { value }) {
-    state.metrics = value;
+  setMetricsCols(state, { value }) {
+    state.metricsCols = value;
+  },
+  setAddressCols(state, { value }) {
+    state.addressCols = value;
+  },
+  setDatalistWithXY(state, { value }) {
+    state.datalistWithXY = value;
+  },
+  setColumnsWithXY(state, { value }) {
+    state.columnsWithXY = value;
+  },
+  setGeoJson(state, { value }) {
+    state.GeoJson = value;
   },
 };
 const actions = {
@@ -32,11 +70,57 @@ const actions = {
   setChartName({ commit }, value) {
     commit("setChartName", { value });
   },
-  setMetricNames({ commit }, value) {
-    commit("setMetricNames", { value });
+  setMetricNamesCols({ commit }, value) {
+    commit("setMetricNamesCols", { value });
   },
-  setMetrics({ commit }, value) {
-    commit("setMetrics", { value });
+  setMetricsCols({ commit }, value) {
+    commit("setMetricsCols", { value });
+  },
+  async setAddressCols({ commit, state, dispatch }, value) {
+    commit("setAddressCols", { value });
+    if (value.length === 0) {
+      dispatch("setDatalistWithXY", []);
+      dispatch("setColumnsWithXY", []);
+      return;
+    }
+    let getAddressResultPromises = state.datalist.map((data) => {
+      let address = value.map((col) => {
+        return data[col.datafield];
+      });
+      return getAddressResult(address.join(""));
+    });
+    dispatch("setIsLoading", true, { root: true });
+    const addressResult = await Promise.all(getAddressResultPromises).then(
+      (res) => {
+        return res.map((data, index) => {
+          const X = (data.Result[0] && data.Result[0].Lon) || undefined;
+          const Y = (data.Result[0] && data.Result[0].Lat) || undefined;
+          return { ...state.datalist[index], X, Y };
+        });
+      }
+    );
+    dispatch("setIsLoading", false, { root: true });
+
+    dispatch("setColumnsWithXY", [
+      ...state.columns,
+      { text: "X(自動產生)", datafield: "X" },
+      { text: "Y(自動產生)", datafield: "Y" },
+    ]);
+    dispatch("setDatalistWithXY", addressResult);
+  },
+  clearChartCols({ dispatch }) {
+    dispatch("setMetricNamesCols", []);
+    dispatch("setMetricsCols", []);
+    dispatch("setAddressCols",[]);
+  },
+  setDatalistWithXY({ commit }, value) {
+    commit("setDatalistWithXY", { value });
+  },
+  setColumnsWithXY({ commit }, value) {
+    commit("setColumnsWithXY", { value });
+  },
+  setGeoJson({ commit }, value) {
+    commit("setGeoJson", { value });
   },
 };
 const getters = {
@@ -49,11 +133,23 @@ const getters = {
   columns(state) {
     return state.columns;
   },
-  metricNames(state) {
-    return state.metricNames;
+  metricNamesCols(state) {
+    return state.metricNamesCols;
   },
-  metrics(state) {
-    return state.metrics;
+  metricsCols(state) {
+    return state.metricsCols;
+  },
+  addressCols(state) {
+    return state.addressCols;
+  },
+  datalistWithXY(state) {
+    return state.datalistWithXY;
+  },
+  columnsWithXY(state) {
+    return state.columnsWithXY;
+  },
+  GeoJson(state) {
+    return state.GeoJson;
   },
 };
 

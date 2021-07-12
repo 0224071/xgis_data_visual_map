@@ -3,7 +3,7 @@
     <h1>{{ msg }}</h1>
     <p>
       基於 vue 和 echart 建立的數據可視化地圖 <a
-        href="@/assets/covidtable_taiwan_cdc6.xlsx"
+        :href="publicPath+'file/covidtable_taiwan_cdc6.xlsx'"
         download
       >下載範本</a>
     </p>
@@ -21,6 +21,9 @@ export default {
   name: "HelloWorld",
   props: {
     msg: String,
+  },
+  data() {
+    return { publicPath: __webpack_public_path__ };
   },
 };
 </script>

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "@/views/Home.vue";
 import ExcelData from "@/views/Example/ExcelData.vue";
+import store from "@/store";
 
 const routes = [
   {
@@ -17,6 +18,13 @@ const routes = [
       {
         path: "Chart",
         component: () => import("@/views/Example/ExcelChart.vue"),
+        beforeEnter: (to, from, next) => {
+          // reject the navigation
+
+          store.getters["chart/datalist"].length > 0
+            ? next()
+            : next("/example");
+        },
       },
     ],
     component: () => import("@/views/Example.vue"),

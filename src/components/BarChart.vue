@@ -1,12 +1,12 @@
 <template>
-  <v-chart
-    v-if="chartShow"
-    class="bar-chart"
-    :option="optionComputed"
-  />
-  <div v-else>
-    圖表所需元素不足
+  <div>
+    <v-chart
+      :option="optionComputed"
+      class="w-100 h-100"
+      autoresize
+    />
   </div>
+
 </template>
 
 <script>
@@ -47,42 +47,37 @@ export default {
 
       xAxis: {
         type: "category",
-        data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        axisLabel: { interval: 0, rotate: 90 },
+        data: [],
       },
       yAxis: {
         type: "value",
       },
       series: [
         {
-          data: [120, 200, 150, 80, 70, 110, 130],
+          data: [],
           type: "bar",
         },
       ],
     });
     const optionComputed = computed(() => {
-      if (datalist.value) {
-        let xAxisData = [];
-        let seriesData = [];
-
-        datalist.value.forEach((data) => {
-          let name = data[metricNames.value[0]];
-          let value = data[metrics.value[0]];
-
-          let index = xAxisData.findIndex((item) => item === name);
-          if (index >= 0) {
-            seriesData[index] = +seriesData[index] + value;
-          } else {
-            xAxisData.push(name);
-            seriesData.push(0);
-          }
-          console.log(seriesData);
-        });
-
-        option.title.text = titleText;
-        option.xAxis.data = xAxisData;
-        option.series[0].name = metrics.value[0];
-        option.series[0].data = seriesData;
-      }
+      const result = datalist.value.reduce((acc, data) => {
+        let dataName =
+          (metricNames.value[0] && data[metricNames.value[0].datafield]) || "";
+        let dataValue =
+          metrics.value[0] && data[metrics.value[0].datafield] | "";
+        acc[dataName] = acc[dataName]
+          ? +acc[dataName] + dataValue
+          : (acc[dataName] = dataValue);
+        return acc;
+      }, {});
+      let optionXAxisData = Object.keys(result);
+      option.xAxis.data = optionXAxisData;
+      option.series[0].data = optionXAxisData.map((legend) => {
+        return { value: result[legend], name: legend };
+      });
+      option.title.text = titleText.value;
+      option.series[0].name =  metrics.value[0]&&metrics.value[0].text||"";
       return option;
     });
 
@@ -95,8 +90,4 @@ export default {
 </script>
 
 <style scoped>
-.bar-chart {
-  height: 100%;
-  width: 100%;
-}
 </style>

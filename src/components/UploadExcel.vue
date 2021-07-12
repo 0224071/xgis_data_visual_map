@@ -30,11 +30,11 @@
       <draggable
         tag="ul"
         class="columns-list"
-        :list="columns"
+        v-model="cols"
         :group="{ name: 'column', pull: 'clone', put: false }"
       >
         <template #item="{ element }">
-          <li>{{element}}</li>
+          <li>{{element.text}}</li>
         </template>
       </draggable>
 
@@ -60,12 +60,13 @@ export default {
         o[i] = { name: XLSX.utils.encode_col(i), key: i };
       return o;
     };
+    const chartName = computed(() => store.getters["chart/chartName"]);
+    const columns = computed(() => store.getters["chart/columns"]);
+    const columnsWithXY = computed(() => store.getters["chart/columnsWithXY"]);
     const setChartName = (value) => store.dispatch("chart/setChartName", value);
     const setDatalist = (value) => store.dispatch("chart/setDatalist", value);
     const setColumns = (value) => store.dispatch("chart/setColumns", value);
-    const setMetricNames = (value) =>
-      store.dispatch("chart/setMetricNames", value);
-    const setMetrics = (value) => store.dispatch("chart/setMetrics", value);
+    const clearChartCols = (value) => store.dispatch("chart/clearChartCols");
 
     const setIsLoading = (value) => store.dispatch("setIsLoading", value);
 
@@ -84,12 +85,15 @@ export default {
 
           const data = XLSX.utils.sheet_to_json(ws);
           setChartName(wsname);
-          setColumns(Object.keys(data[0]));
+          setColumns(
+            Object.keys(data[0]).map((col) => {
+              return { text: col, datafield: col };
+            })
+          );
           setDatalist(data);
-          setMetricNames([]);
-          setMetrics([]);
+          clearChartCols();
           setIsLoading(false);
-          ev.target.value="";
+          ev.target.value = "";
         };
         if (rABS) reader.readAsBinaryString(files[0]);
         else reader.readAsArrayBuffer(files[0]);
@@ -99,14 +103,12 @@ export default {
     return {
       handleExcelFileChange,
       setColumns,
-      chartName: computed(() => store.getters["chart/chartName"]),
-      columns: computed({
-        get() {
-          return store.getters["chart/columns"];
-        },
-        set(value) {
-          setColumns(value);
-        },
+      chartName,
+      columns,
+      columnsWithXY,
+      cols: computed(() => {
+        
+        return columnsWithXY.value.length > 0 ? columnsWithXY.value : columns.value;
       }),
     };
   },
