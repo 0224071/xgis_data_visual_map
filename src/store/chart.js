@@ -12,10 +12,10 @@ const getGeoJson = async (address) => {
     .then((res) => res.json())
     .catch((err) => false);
 };
-
+console.log(process.env)
 const getAddressResult = async (address) => {
   if (!address) return false;
-  return await fetch(`/SearchAddress?Addr=${address}`)
+  return await fetch(`${process.env.VUE_APP_Search_Address_API}?Addr=${address}`)
     .then((res) => res.json())
     .catch((err) => false);
 };
