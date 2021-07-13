@@ -12,10 +12,12 @@ const getGeoJson = async (address) => {
     .then((res) => res.json())
     .catch((err) => false);
 };
-console.log(process.env)
+console.log(process.env);
 const getAddressResult = async (address) => {
   if (!address) return false;
-  return await fetch(`${process.env.VUE_APP_Search_Address_API}?Addr=${address}`)
+  return await fetch(
+    `${process.env.VUE_APP_Search_Address_API}?Addr=${address}`
+  )
     .then((res) => res.json())
     .catch((err) => false);
 };
@@ -93,9 +95,13 @@ const actions = {
     const addressResult = await Promise.all(getAddressResultPromises).then(
       (res) => {
         return res.map((data, index) => {
-          const X = (data.Result[0] && data.Result[0].Lon) || undefined;
-          const Y = (data.Result[0] && data.Result[0].Lat) || undefined;
-          return { ...state.datalist[index], X, Y };
+          if (data.Result.length > 0) {
+            const X = data.Result[0].Lon;
+            const Y = data.Result[0].Lat;
+            return { ...state.datalist[index], X, Y };
+          } else {
+            return state.datalist[index];
+          }
         });
       }
     );
@@ -111,7 +117,7 @@ const actions = {
   clearChartCols({ dispatch }) {
     dispatch("setMetricNamesCols", []);
     dispatch("setMetricsCols", []);
-    dispatch("setAddressCols",[]);
+    dispatch("setAddressCols", []);
   },
   setDatalistWithXY({ commit }, value) {
     commit("setDatalistWithXY", { value });

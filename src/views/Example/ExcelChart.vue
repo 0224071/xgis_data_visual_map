@@ -9,10 +9,12 @@
     height: 0;
     display: flex;
     &__chart {
-      flex: 1 1 auto;
+      width: 60%;
+      resize: horizontal;
+      overflow: hidden;
     }
     &__map {
-      width: 70%;
+      flex: 1 1 auto;
     }
   }
 }
@@ -179,7 +181,7 @@
 </template>
 
 <script>
-import { computed, reactive, ref, watch } from "vue";
+import { computed, reactive, ref } from "vue";
 import { useStore } from "vuex";
 import PieChart from "@/components/PieChart.vue";
 import BarChart from "@/components/BarChart.vue";

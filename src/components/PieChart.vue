@@ -43,7 +43,6 @@ export default {
         formatter: "{a} <br/>{b} : {c} ({d}%)",
       },
       legend: {
-      
         bottom: 10,
         type: "scroll",
         data: [],
@@ -67,8 +66,9 @@ export default {
     });
     const optionComputed = computed(() => {
       let result = datalist.value.reduce((acc, data) => {
-        let dataName =
-          (metricNames.value[0] && data[metricNames.value[0].datafield]) || "";
+        let dataName = metricNames.value
+          .map((metricName) => data[metricName.datafield])
+          .join(",");
         let dataValue =
           metrics.value[0] && data[metrics.value[0].datafield] | "";
         if (+dataValue === 0) return acc;
@@ -84,7 +84,7 @@ export default {
         return { value: result[legend], name: legend };
       });
       option.title.text = titleText.value;
-      option.series[0].name = metrics.value[0]&&metrics.value[0].text||"";
+      option.series[0].name = (metrics.value[0] && metrics.value[0].text) || "";
       return option;
     });
 

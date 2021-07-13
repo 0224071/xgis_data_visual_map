@@ -54,12 +54,12 @@ import {
 } from "@/plugin/map.js";
 import {
   onMounted,
+  onUnmounted,
   ref,
   reactive,
   toRefs,
   watch,
   computed,
-  nextTick,
 } from "vue";
 
 export default {
@@ -79,14 +79,20 @@ export default {
 
     const { datalist, showAttrs } = toRefs(props);
     const features = computed(() => {
-      return datalist.value.map((data) => {
-        return new Feature({
-          geometry: new Point(
-            transform([data.X, data.Y], "EPSG:4326", "EPSG:3857")
-          ),
-          info: data,
-        });
+      let features = [];
+      datalist.value.forEach((data, index) => {
+        if (data.X && data.Y) {
+          features.push(
+            new Feature({
+              geometry: new Point(
+                transform([data.X, data.Y], "EPSG:4326", "EPSG:3857")
+              ),
+              info: data,
+            })
+          );
+        }
       });
+      return features;
     });
 
     const vectorSource = new VectorSource({
@@ -105,77 +111,82 @@ export default {
 
     const hoverSelected = reactive({ value: hoverSelected });
 
-    onMounted(async () => {
-      nextTick(() => {
-        const map = new Map({
-          target: mapDom.value,
-          layers: [
-            new TileLayer({
-              source: new OSM(),
-            }),
-            vectorLayer,
-          ],
-
-          view: new View({
-            center: [0, 0],
-            zoom: 2,
-          }),
-        });
-        vectorSource.on("featuresloadstart", () => {
-          features.value.length > 0 &&
-            map.getView().fit(vectorSource.getExtent());
-        });
-        vectorSource.on("addfeature", () => {
-          features.value.length > 0 &&
-            map.getView().fit(vectorSource.getExtent());
-        });
-
-        let selected = reactive({ value: null });
-
-        map.on("pointermove", function (e) {
-          const element = popup.getElement();
-          if (selected.value) {
-            // selected.value.setStyle(undefined);
-            selected.value = null;
-            $(element).popover("hide");
-          }
-          map.forEachFeatureAtPixel(e.pixel, function (feat) {
-            selected.value = feat;
-
-            // feat.setStyle(highlightStyle);
-
-            const extent = feat.getGeometry().getExtent();
-            const center = getCenter(extent);
-
-            $(element).popover("dispose");
-            popup.setPosition(center);
-
-            let listItemWrapTemplate = showAttrs.value.reduce((acc, attr) => {
-              return (
-                acc +
-                `<li><div class="title">${attr}:</div> <strong>${feat.values_.info[attr]}</strong></li>`
-              );
-            }, "");
-            let listHtmlWrapTemplate = `<ul>${listItemWrapTemplate}</ul>`;
-            $(element).popover({
-              container: element,
-              placement: "top",
-              animation: false,
-              html: true,
-              content: listHtmlWrapTemplate,
-            });
-            $(element).popover("show");
-            return;
-          });
-        });
-        const popup = new Overlay({
-          element: document.getElementById("popup"),
-        });
-
-        map.addOverlay(popup);
-      });
+    const resizeObserver = new ResizeObserver(() => {
+      mapApp.map.updateSize();
     });
+    onMounted(() => {
+      const map = new Map({
+        target: mapDom.value,
+        layers: [
+          new TileLayer({
+            source: new OSM(),
+          }),
+          vectorLayer,
+        ],
 
+        view: new View({
+          center: [0, 0],
+          zoom: 2,
+        }),
+      });
+      vectorSource.on("featuresloadstart", () => {
+        features.value.length > 0 &&
+          map.getView().fit(vectorSource.getExtent());
+      });
+      vectorSource.on("addfeature", () => {
+        features.value.length > 0 &&
+          map.getView().fit(vectorSource.getExtent());
+      });
+
+      let selected = reactive({ value: null });
+
+      map.on("pointermove", function (e) {
+        const element = popup.getElement();
+        if (selected.value) {
+          // selected.value.setStyle(undefined);
+          selected.value = null;
+          $(element).popover("hide");
+        }
+        map.forEachFeatureAtPixel(e.pixel, function (feat) {
+          selected.value = feat;
+
+          // feat.setStyle(highlightStyle);
+
+          const extent = feat.getGeometry().getExtent();
+          const center = getCenter(extent);
+
+          $(element).popover("dispose");
+          popup.setPosition(center);
+
+          let listItemWrapTemplate = showAttrs.value.reduce((acc, attr) => {
+            return (
+              acc +
+              `<li><div class="title">${attr}:</div> <strong>${feat.values_.info[attr]}</strong></li>`
+            );
+          }, "");
+          let listHtmlWrapTemplate = `<ul>${listItemWrapTemplate}</ul>`;
+          $(element).popover({
+            container: element,
+            placement: "top",
+            animation: false,
+            html: true,
+            content: listHtmlWrapTemplate,
+          });
+          $(element).popover("show");
+          return;
+        });
+      });
+      const popup = new Overlay({
+        element: document.getElementById("popup"),
+      });
+
+      map.addOverlay(popup);
+      resizeObserver.observe(mapDom.value);
+      mapApp.map = map;
+    });
+    onUnmounted(() => {
+      resizeObserver.unobserve(mapDom.value);
+    });
     return { mapDom, mapApp };
   },
 };

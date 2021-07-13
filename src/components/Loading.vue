@@ -43,7 +43,7 @@ $size: 150px;
   z-index: 3;
   top: 0;
   left: 0;
-  background-color: rgba(125, 125, 125, 0.4);
+  background-color: rgba(125, 125, 125, 0.6);
 }
 .spinner {
   width: $size;
