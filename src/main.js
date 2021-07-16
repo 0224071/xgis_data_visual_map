@@ -15,6 +15,11 @@ import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import { PieChart, BarChart } from "echarts/charts";
 
+//第三方登入資源引用
+
+
+
+
 import {
   GridComponent,
   TooltipComponent,

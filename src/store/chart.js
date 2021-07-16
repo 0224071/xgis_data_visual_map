@@ -12,7 +12,7 @@ const getGeoJson = async (address) => {
     .then((res) => res.json())
     .catch((err) => false);
 };
-console.log(process.env);
+
 const getAddressResult = async (address) => {
   if (!address) return false;
   return await fetch(
