@@ -31,16 +31,24 @@
         ></li>
     </ul>
     <Index msg="Vue & Echart " />
+    <div style="width:340px;margin:0 auto;">
+      <FBLogin></FBLogin>
+      <LineLogin></LineLogin>
+    </div>
   </div>
 </template>
 
 <script>
 import Index from "@/components/Index.vue";
+import FBLogin from "@/components/Social/FBLogin.vue";
+import LineLogin from "@/components/Social/LineLogin.vue";
 
 export default {
   name: "Home",
   components: {
     Index,
+    FBLogin,
+    LineLogin,
   },
 };
 </script>
