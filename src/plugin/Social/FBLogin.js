@@ -31,3 +31,4 @@ export const login = (fn = () => {}) => {
 export const logout = (fn = () => {}) => {
   FB.logout(fn);
 };
+

@@ -1,5 +1,6 @@
 import { createStore } from "vuex";
 import chart from "./chart";
+import social from "./social";
 export default createStore({
   state: {
     isLoading: false,
@@ -19,5 +20,5 @@ export default createStore({
       return state.isLoading;
     },
   },
-  modules: { chart },
+  modules: { chart, social },
 });

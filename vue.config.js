@@ -1,3 +1,4 @@
+const fs = require("fs");
 module.exports = {
   publicPath:
     process.env.NODE_ENV === "production" ? "/xgis_data_visual_map/" : "/",
@@ -12,5 +13,10 @@ module.exports = {
         },
       },
     },
+    https: true,
+    key: fs.readFileSync(`${__dirname}/src/assets/localhost-key.pem`),
+    cert: fs.readFileSync(`${__dirname}/src/assets/localhost.pem`),
+    host: "localhost",
+    port: 8080,
   },
 };
