@@ -37,20 +37,16 @@ img {
     </ul>
     <Index msg="Vue & Echart " />
 
-    <Social style="width:340px;margin:0 auto;"></Social>
-
   </div>
 </template>
 
 <script>
 import Index from "@/components/Index.vue";
-import Social from "@/components/Social/Social.vue";
 
 export default {
   name: "Home",
   components: {
     Index,
-    Social,
   },
 };
 </script>

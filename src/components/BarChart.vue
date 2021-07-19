@@ -121,7 +121,7 @@ export default {
                 return value ? true : false;
               },
               formatter: function (value, index) {
-                console.log(value);
+              
                 return value;
               },
               rotate:0,
@@ -167,7 +167,7 @@ export default {
     watch(
       optionComputed,
       () => {
-        console.log(optionComputed.value.xAxis);
+      
         chart.value.setOption(chart.value.option, true);
       },
       { deep: true }

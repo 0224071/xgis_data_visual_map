@@ -63,15 +63,22 @@ const getters = {
   },
   profile(state) {
     if (state.line.isAuthorized) {
-      return state.line.profile;
+      return { ...state.line.profile, method: "line" };
     }
     if (state.google.isAuthorized) {
-      return state.google.profile;
+      return { ...state.google.profile, method: "google" };
     }
     if (state.facebook.isAuthorized) {
-      return state.facebook.profile;
+      return { ...state.facebook.profile, method: "facebook" };
     }
     return { message: "未登入" };
+  },
+  isLogged() {
+    return (
+      state.line.isAuthorized ||
+      state.google.isAuthorized ||
+      state.facebook.isAuthorized
+    );
   },
 };
 

@@ -53,6 +53,7 @@ export default {
   padding-right: 8px;
   padding-top: 5px;
   border-right: 1px solid #dedede;
+  border-top: 1px solid #dedede;
 }
 .content {
   flex: 1 1 auto;
@@ -60,6 +61,7 @@ export default {
 
   display: flex;
   flex-direction: column;
+  border-top: 1px solid #dedede;
   &__view {
     padding: 0.5rem 1rem;
     flex: 1 1 auto;

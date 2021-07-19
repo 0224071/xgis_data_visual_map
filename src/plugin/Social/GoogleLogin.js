@@ -1,6 +1,12 @@
 let GoogleAuth = null;
 
 export const init = (fn = () => {}) => {
+  if (!gapi) {
+    setTimeout(() => {
+      init(fn);
+    }, 500);
+    return;
+  }
   gapi.load("auth2", function() {
     GoogleAuth = gapi.auth2.init({
       client_id:

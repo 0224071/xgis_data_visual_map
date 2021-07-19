@@ -12,6 +12,13 @@ module.exports = {
           "^/SearchAddress": "",
         },
       },
+      "/api/db": {
+        target: "https://ysong.com.tw/XDBManager/api/db",
+        changeOrigin: true,
+        pathRewrite: {
+          "^/api/db": "",
+        },
+      },
     },
     https: true,
     key: fs.readFileSync(`${__dirname}/src/assets/localhost-key.pem`),
