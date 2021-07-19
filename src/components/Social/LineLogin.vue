@@ -19,7 +19,7 @@ $font-color: #ffffff;
     padding: 0.5rem 0.3rem;
     &__icon {
       text-decoration: none;
-      width: 2.7rem;
+      width: 2.8rem;
       height: 2.4rem;
       background-image: url("../../assets/btn_base.png");
       background-size: cover;
@@ -40,6 +40,7 @@ $font-color: #ffffff;
   <a
     class="LineBtnWrapper"
     href="#"
+    v-if="!social.isAuthorized"
     @click.prevent="handLineLoginBtn"
   >
     <div class="LineBtnWrapper__iconWrapper">
@@ -50,34 +51,77 @@ $font-color: #ffffff;
     </div>
 
   </a>
-  <button @click="getData">getData</button>
+  <a
+    class="LineBtnWrapper"
+    href="#"
+    v-else
+    @click.prevent="handLineLogoutBtn"
+  >
+    <div class="LineBtnWrapper__iconWrapper">
+      <div class="LineBtnWrapper__iconWrapper__icon"></div>
+    </div>
+    <div class="LineBtnWrapper__text">
+      登出 Line 帳號
+    </div>
+
+  </a>
 </template>
 
 
 <script>
-import { getProfile } from "@/plugin/LineLogin.js";
-import { onMounted, reactive, watch } from "vue";
+import { getProfile, login, logout } from "@/plugin/Social/LineLogin.js";
+import {
+  setIsAuthorized,
+  setProfile,
+  getSocialData,
+} from "@/plugin/Social/index.js";
+import { onMounted, computed } from "vue";
+
 export default {
   setup() {
-    const loginData = reactive({ isAuthorized: false, profile: {} });
-    const handLineLoginBtn = () => {
-      let client_id = "1656213058";
-      let redirect_uri = "https://localhost:8080/";
-      let link = "https://access.line.me/oauth2/v2.1/authorize?";
-      link += "response_type=code";
-      link += "&client_id=" + client_id;
-      link += "&redirect_uri=" + redirect_uri;
-      link += "&state=login";
-      link += "&scope=profile%20openid%20email";
-      window.location.href = link;
-    };
-    const getData = () => {
-      getProfile((res) => {
-        console.log(res);
+    const social = computed(() => getSocialData("line"));
+    const updateLineAuthorized = (value) => {
+      setIsAuthorized({
+        isAuthorized: value,
+        method: "line",
       });
     };
-    const handLineLogoutBtn = () => {};
-    return { getData, handLineLoginBtn, handLineLogoutBtn };
+    const updateLineProfile = (value) => {
+      setProfile({
+        ...value,
+        method: "line",
+      });
+    };
+
+    onMounted(async () => {
+      let result = await getProfile();
+
+      if (result.userId) {
+        //access_token 有效
+
+        updateLineAuthorized(true);
+        updateLineProfile(result);
+      } else if (result.message === "invalid token") {
+        //access_token 無效
+        updateLineAuthorized(false);
+        updateLineProfile({});
+      } else {
+        //登入失敗
+        updateLineAuthorized(false);
+        updateLineProfile({});
+      }
+    });
+
+    const handLineLoginBtn = () => {
+      login();
+    };
+    const handLineLogoutBtn = () => {
+      logout(() => {
+        updateLineAuthorized(false);
+        updateLineProfile({});
+      });
+    };
+    return { social, handLineLoginBtn, handLineLogoutBtn };
   },
 };
 </script>

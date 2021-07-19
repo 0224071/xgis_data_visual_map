@@ -7,6 +7,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <link rel="icon" href="<%= BASE_URL %>favicon.ico">
   <title><%= htmlWebpackPlugin.options.title %></title>
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
 
 <body>
@@ -15,40 +16,6 @@
       Please enable it to continue.</strong>
   </noscript>
   <div id="app"></div>
-
-
-  <script>
-    // window.fbAsyncInit = function () {
-
-    //   FB.init({
-    //     appId: '4388194917898051',
-    //     cookie: true,
-    //     xfbml: true,
-    //     version: 'v11.0'
-    //   });
-
-    //   function statusChangeCallback(response) { // Called with the results from FB.getLoginStatus().
-    //     console.log(response); // The current login status of the person.
-    //     if (response.status === 'connected') { // Logged into your webpage and Facebook.
-    //       testAPI();
-    //     } else { // Not logged into your webpage or we are unable to tell.
-    //       document.getElementById('status').innerHTML = 'Please log ' +
-    //         'into this webpage.';
-    //     }
-    //   }
-
-    //   function testAPI() { // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
-    //     FB.api('/me', function (response) {
-    //       document.getElementById('status').innerHTML =
-    //         'Thanks for logging in, ' + response.name + '!';
-    //     });
-    //   }
-    //   FB.getLoginStatus(function (response) {
-    //     statusChangeCallback(response);
-    //   });
-
-    // };
-  </script>
 
 
 </body>

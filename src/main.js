@@ -15,10 +15,10 @@ import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import { PieChart, BarChart } from "echarts/charts";
 
+// import cookies
+import { VueCookieNext } from 'vue-cookie-next'
+
 //第三方登入資源引用
-
-
-
 
 import {
   GridComponent,
@@ -39,6 +39,6 @@ use([
 createApp(App)
   .use(store)
   .use(router)
-
+  .use(VueCookieNext)
   .component("v-chart", ECharts)
   .mount("#app");

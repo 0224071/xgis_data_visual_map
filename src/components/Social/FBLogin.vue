@@ -28,7 +28,7 @@
 <template>
   <a
     class="fbBtnWrapper"
-    v-if="!loginData.isAuthorized"
+    v-if="!social.isAuthorized"
     href="#"
     @click.prevent="handFBLoginBtn"
   >
@@ -63,28 +63,49 @@ import {
   getLoginStatus,
   login,
   logout,
-} from "@/plugin/FBLogin.js";
+} from "@/plugin/Social/FBLogin.js";
+import {
+  setIsAuthorized,
+  setProfile,
+  getSocialData,
+} from "@/plugin/Social/index.js";
 
-import { onMounted, reactive, watch } from "vue";
+import { computed, onMounted } from "vue";
 export default {
   setup() {
-    const loginData = reactive({ isAuthorized: false, profile: {} });
+    const social = computed(() => getSocialData("facebook"));
 
+    const updateFbAuthorized = (value) => {
+      setIsAuthorized({
+        isAuthorized: value,
+        method: "facebook",
+      });
+    };
+    const updateFbProfile = (value) => {
+      setProfile({
+        name: value.name,
+        userId: value.id,
+        photo: ` https://graph.facebook.com/${value.id}/picture?type=square`,
+        method: "facebook",
+      });
+    };
     const setLoginData = () => {
       //獲取認證訊息
       getLoginStatus((res) => {
         if (res.status === "connected") {
           //已登入已認證，並取得使用者資料
-          loginData.isAuthorized = true;
+          updateFbAuthorized(true);
           getProfile((res) => {
-            loginData.profile = res;
+            updateFbProfile(res);
           });
         } else if (res.status === "not_authorized") {
           //未登入已認證
-          loginData.isAuthorized = false;
+          updateFbAuthorized(false);
+          updateFbProfile({});
         } else {
           //未登入未認證
-          loginData.isAuthorized = false;
+          updateFbAuthorized(false);
+          updateFbProfile({});
         }
       });
     };
@@ -96,13 +117,7 @@ export default {
         setLoginData();
       };
     });
-    watch(
-      loginData,
-      () => {
-        console.log(loginData);
-      },
-      { deep: true }
-    );
+
     const handFBLoginBtn = () => {
       login(() => {
         setLoginData();
@@ -110,10 +125,11 @@ export default {
     };
     const handFBLogoutBtn = () => {
       logout(() => {
-        setLoginData();
+        updateFbAuthorized(false);
+        updateFbProfile({});
       });
     };
-    return { loginData, handFBLoginBtn, handFBLogoutBtn };
+    return { social, handFBLoginBtn, handFBLogoutBtn };
   },
 };
 </script>
