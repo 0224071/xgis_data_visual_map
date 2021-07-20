@@ -51,7 +51,8 @@ import FBLogin from "@/components/Social/FBLogin.vue";
 import LineLogin from "@/components/Social/LineLogin.vue";
 import GoogleLogin from "@/components/Social/GoogleLogin.vue";
 import { useStore } from "vuex";
-import { computed } from "vue";
+import { computed, watch } from "vue";
+import { DBApi } from "@/plugin/DBApi.js";
 export default {
   name: "Social",
   components: {
@@ -71,7 +72,30 @@ export default {
         return `background-color:#000000`;
       }
     });
+    const db = new DBApi(process.env.VUE_APP_DB_API + "/");
+    watch(isLogin, (newValue) => {
+      if (newValue) {
+        let filter = "1=1";
 
+        switch (profile.value.method) {
+          case "facebook":
+            filter = `Fb_id='${profile.value.userId}'`;
+            break;
+          case "line":
+            filter = `Line_id='${profile.value.userId}'`;
+            break;
+          case "google":
+            console.log(filter);
+            filter = `Google_id='${profile.value.userId}'`;
+            break;
+          default:
+            break;
+        }
+        db.SelectTable("UserInfo", filter, (data) => {
+          console.log(data);
+        });
+      }
+    });
     return { profile, isLogin, bgImage };
   },
 };

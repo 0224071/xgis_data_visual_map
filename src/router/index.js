@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "@/views/Home.vue";
+import Logup from "@/views/Logup.vue";
 import ExcelData from "@/views/Example/ExcelData.vue";
 import store from "@/store";
 
@@ -28,6 +29,10 @@ const routes = [
       },
     ],
     component: () => import("@/views/Example.vue"),
+  },
+  {
+    path: "/Logup",
+    component: Logup,
   },
 ];
 

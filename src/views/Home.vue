@@ -37,8 +37,6 @@ img {
     </ul>
     <Index msg="Vue & Echart " />
 
-    <Social style="width:340px;margin:0 auto;"></Social>
-
   </div>
 </template>
 
