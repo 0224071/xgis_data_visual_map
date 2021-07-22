@@ -8,6 +8,7 @@ export const logout = (fn = () => {}) => {
 };
 
 export const getProfile = async () => {
+ 
   const result = await fetch(process.env.VUE_APP_Line_Profile_API).then((res) =>
     res.json()
   );

@@ -8,7 +8,7 @@
 
   </div>
   <Modal v-model="isShowSocialModal">
-     <Social style="width:340px;margin:0 auto;"></Social>
+    <Social style="width:340px;margin:0 auto;"></Social>
   </Modal>
 </template>
 <script>
@@ -21,7 +21,7 @@ export default {
   components: {
     Navbar,
     Modal,
-    Social
+    Social,
   },
   setup() {
     const store = useStore();
